@@ -1,0 +1,14 @@
+{
+  "HP": {
+    "owner": "moewie94",
+    "dataset_name": "housepricedata"
+  },
+  "BM": {
+    "owner": "sharanmk",
+    "dataset_name": "bank-marketing-term-deposit"
+  },
+  "GC": {
+    "owner": "uciml",
+    "dataset_name": "german-credit"
+  }
+}

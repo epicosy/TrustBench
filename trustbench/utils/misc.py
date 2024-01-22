@@ -29,3 +29,7 @@ def get_config(config: Any) -> dict:
         return {}
 
     raise ValueError(f"To be implemented config type: {type(config)}")
+
+
+def get_kaggle_datasets(config_file: str):
+    return read_config(config_file)

@@ -107,25 +107,23 @@ class Dataset:
         self._df = df
 
     def preprocess(self, scale: bool = False, encode: bool = False, binarize: bool = False):
+        features = self.df.iloc[:, :-1]
+        labels = self.df.iloc[:, -1]
 
         if encode:
             for col, encodings in self.config['encodings'].items():
-                print(col, encodings)
-                self.df[col] = self.df[col].map(encodings)
+                features[col] = features[col].map(encodings)
 
         if binarize:
             # TODO: find out why some categories are not encoded
-            self.df = pd.get_dummies(self.df, drop_first=True)
+            features = pd.get_dummies(features, drop_first=True)
 
         if scale:
             from sklearn.preprocessing import MinMaxScaler
             min_max_scaler = MinMaxScaler()
-            self.df.iloc[:, :-1] = min_max_scaler.fit_transform(self.df.iloc[:, :-1])
+            features = min_max_scaler.fit_transform(features)
 
         from sklearn.model_selection import train_test_split
-
-        features = self.df.iloc[:, :-1]
-        labels = self.df.iloc[:, -1]
 
         train_split = train_test_split(features, labels, test_size=0.2)
 

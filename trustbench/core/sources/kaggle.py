@@ -1,7 +1,6 @@
 import os
 
 from trustbench.core.sources.source import Source
-from trustbench.utils.misc import find_config, read_config
 
 
 class Kaggle(Source):
@@ -18,14 +17,6 @@ class Kaggle(Source):
 
     def init(self, **kwargs):
         os.environ['KAGGLE_PATH'] = str(self.data_dir)
-
-    def list_datasets(self, **kwargs) -> tuple:
-        config_file = find_config('kaggle_datasets.json', exact=True)
-
-        if isinstance(config_file, list):
-            raise FileNotFoundError(f"Config file kaggle_datasets.json not found")
-
-        return read_config(config_file).items()
 
     def get_dataset_ref(self, user: str, name: str):
         results = self.api.dataset_list(search=name, user=user)

@@ -1,11 +1,11 @@
 import argparse
 
-from trustbench.utils.misc import find_sources, list_datasets, get_configs
+from trustbench.utils.misc import find_sources, get_datasets_configs, list_datasets
 from trustbench.core.dataset import Dataset
 
 
 SOURCES = find_sources()
-DATASETS = list_datasets()
+DATASETS_CONFIGS = get_datasets_configs()
 
 
 if __name__ == '__main__':
@@ -18,25 +18,28 @@ if __name__ == '__main__':
 
     preprocess_parser = subparsers.add_parser('preprocess')
     preprocess_parser.add_argument('-d', '--dataset', type=str, help='dataset', required=False,
-                                   choices=DATASETS.keys())
-    preprocess_parser.add_argument('-e', '--encode', action='store_true', default=False,
-                                   help='Encode the columns with the specified values in the config.')
-    preprocess_parser.add_argument('-b', '--binarize', action='store_true', default=False,
-                                   help='Convert categorical variable into dummy/indicator variables.')
+                                   choices=DATASETS_CONFIGS.keys())
 
     args = parser.parse_args()
 
     if args.subparser == 'collect':
         source = SOURCES[args.source]
 
-        for name, dataset in source.list_datasets():
-            source.download(name=name, **dataset)
+        for name, config in DATASETS_CONFIGS.items():
+            collect_config = config.get('collect', {})
+
+            if 'source' in collect_config and collect_config['source'] == args.source:
+                source.download(name=name, **collect_config['kwargs'])
 
     elif args.subparser == 'preprocess':
-        datasets = {args.dataset: DATASETS[args.dataset]} if args.dataset else DATASETS
-        configs = get_configs()
+        datasets_configs = {args.dataset: DATASETS_CONFIGS[args.dataset]} if args.dataset else DATASETS_CONFIGS
+        datasets = list_datasets()
 
-        for name, path in datasets.items():
-            config = configs.get(name, None)
-            dataset = Dataset(name, path, config)
-            dataset.preprocess(encode=args.encode, binarize=args.binarize)
+        for name, configs in datasets_configs.items():
+            preprocess_config = configs.get('preprocess', {})
+
+            if name not in datasets:
+                continue
+
+            dataset = Dataset(name, path=datasets[name], config=preprocess_config)
+            dataset.preprocess()

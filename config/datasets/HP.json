@@ -1,0 +1,17 @@
+{
+  "HP": {
+    "collect": {
+      "source": "kaggle",
+      "kwargs": {
+        "owner": "moewie94",
+        "dataset_name": "housepricedata"
+      }
+    },
+    "preprocess": {
+      "labels_col":"AboveMedianPrice",
+      "options": {
+        "scale": true
+      }
+    }
+  }
+}

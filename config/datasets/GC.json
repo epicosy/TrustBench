@@ -1,0 +1,18 @@
+{
+  "GC": {
+    "collect": {
+      "source": "kaggle",
+      "kwargs": {
+        "owner": "uciml",
+        "dataset_name": "german-credit"
+      }
+    },
+    "preprocess": {
+      "labels_col": "Purpose_vacation/others",
+      "options": {
+        "scale": "true",
+        "binarize": "true"
+      }
+    }
+  }
+}

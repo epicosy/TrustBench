@@ -4,7 +4,7 @@ from typing import Any, List, Dict
 from pathlib import Path
 from typing import Union
 
-from trustbench.utils.paths import config_dir, data_dir
+from trustbench.utils.paths import config_dir, data_dir, datasets_config_dir
 
 
 def get_configs():
@@ -90,3 +90,13 @@ def list_datasets() -> Dict[str, Path]:
     """
 
     return {dataset.name: dataset for dataset in data_dir.iterdir() if dataset.is_dir()}
+
+
+def get_datasets_configs() -> dict:
+    configs = {}
+
+    for dc in datasets_config_dir.iterdir():
+        if dc.is_file() and dc.suffix == '.json':
+            configs.update(read_config(dc))
+
+    return configs

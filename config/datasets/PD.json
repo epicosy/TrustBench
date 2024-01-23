@@ -1,0 +1,14 @@
+{
+  "PD": {
+    "collect": {
+      "source": "kaggle",
+      "kwargs": {
+        "owner": "uciml",
+        "dataset_name": "pima-indians-diabetes-database"
+      }
+    },
+    "preprocess": {
+      "labels_col": "Outcome"
+    }
+  }
+}

@@ -25,7 +25,3 @@ class Source:
     @abstractmethod
     def download(self, name: str, **kwargs):
         pass
-
-    @abstractmethod
-    def list_datasets(self, **kwargs) -> tuple:
-        pass

@@ -1,0 +1,11 @@
+{
+  "CIFRA10": {
+    "collect": {
+      "source": "keras",
+      "kwargs": {
+        "module_name": "cifra10"
+      }
+    },
+    "preprocess": {}
+  }
+}

@@ -8,7 +8,7 @@ SOURCES = find_sources()
 DATASETS_CONFIGS = get_datasets_configs()
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description='A Benchmark for Trustworthiness Evaluation of ML Models')
 
     subparsers = parser.add_subparsers(dest='subparser')

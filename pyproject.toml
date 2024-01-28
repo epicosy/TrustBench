@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+repository = "https://github.com/epicosy/TrustBench"
+homepage = "https://github.com/epicosy/TrustBench"
+
+[project]
+name="trustbench"
+version = "0.0.1"
+description = "A Benchmark for Trustworthiness Evaluation of Machine Learning Models"
+readme = "README.md"
+authors = [
+    {name = "Eduard Pinconschi", email="eduard.pinconschi@tecnico.ulisboa.pt"},
+]
+keywords = ["benchmark", "trustworthiness", "machine learning"]
+license = {file = "LICENSE.txt"}
+requires-python = ">=3.9"
+classifiers = [
+    "Topic :: Software Development",
+    "Programming Language :: Python",
+    "Environment :: Console",
+    "Intended Audience :: Developers"
+]
+dependencies = [
+    "pandas~=1.3.5",
+    "numpy~=1.23.5",
+    "kaggle~=1.6.3",
+    "scikit-learn~=1.3.0"
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov",
+    "coverage",
+    "twine>=1.11.0",
+    "setuptools>=38.6.0",
+    "wheel>=0.31.0"
+]
+
+
+[tool.setuptools.packages.find]
+exclude = ["ez_setup", "tests*"]
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.package-data]
+trustbench = ["data/*"]
+
+[project.scripts]
+trustbench = "trustbench.main:main"

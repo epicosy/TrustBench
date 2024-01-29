@@ -54,6 +54,11 @@ class Split:
         self._features.to_csv(str(self.path / self._features_file), index=False, header=self.headers)
         np.savetxt(str(self.path / self._labels_file), self._labels, fmt='%d')
 
+    def resize(self, shape: tuple) -> np.ndarray:
+        size = len(self.features)
+
+        return self.features.to_numpy().reshape((size, *shape))
+
 
 @dataclass
 class Train(Split):
@@ -191,3 +196,12 @@ class Dataset:
         val_set.features, test_set.features, val_set.labels, test_set.labels = val_test_split
         val_set.save()
         test_set.save()
+
+    def get_resize_shape(self) -> tuple:
+        resize_config = self.config.get('options', {}).get('resize', {})
+
+        if resize_config:
+            return tuple(resize_config['width'], resize_config['height'])
+
+        else:
+            return ()

@@ -3,6 +3,7 @@ import numpy as np
 
 from dataclasses import dataclass
 from pathlib import Path
+from tqdm import tqdm
 
 
 @dataclass
@@ -123,7 +124,8 @@ class Dataset:
         binarize = self.options.get('binarize', False)
         scale = self.options.get('scale', False)
 
-        for col in self.df.columns:
+        # TODO: this it is slow for large datasets; consider using a more efficient method
+        for col in tqdm(self.df.columns):
             if col in encodings:
                 print(f"Encoding column {col}")
                 self.df[col] = self.df[col].map(encodings[col])
@@ -141,6 +143,23 @@ class Dataset:
                     min_max_scaler = MinMaxScaler()
                     self.df[col] = min_max_scaler.fit_transform(self.df[col].values.reshape(-1, 1))
 
+    def _clip(self, features: pd.DataFrame, max_clip: float) -> pd.DataFrame:
+        # TODO: why only use clip_max?
+        #  https://github.com/self-checker/SelfChecker/blob/master/main_kde.py#L111
+
+        if max_clip:
+            # check the range for the clip
+            if max_clip < 0 or max_clip > 1:
+                raise ValueError("Clip range must be between 0 and 1.")
+
+            # get all the columns that are not categorical
+            non_categorical = features.select_dtypes(exclude=['object']).columns
+
+            features[non_categorical] = features[non_categorical].astype("float32")
+            features[non_categorical] = features[non_categorical].applymap(lambda x: (x / 255.0) - (1.0 - max_clip))
+
+            return features
+
     def preprocess(self):
         from sklearn.model_selection import train_test_split
 
@@ -149,6 +168,15 @@ class Dataset:
 
         labels = self.df[labels_col]
         features = self.df.drop(labels_col, axis=1)
+
+        clip = self.options.get('clip', {})
+
+        if clip:
+            clip_max = clip.get('max', None)
+            if clip_max:
+                features = self._clip(features, clip_max)
+            else:
+                raise ValueError("Both min and max must be provided for clipping.")
 
         train_split = train_test_split(features, labels, test_size=0.2)
 

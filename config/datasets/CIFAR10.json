@@ -1,11 +1,23 @@
 {
-  "CIFRA10": {
+  "CIFAR10": {
     "collect": {
       "source": "keras",
       "kwargs": {
-        "module_name": "cifra10"
+        "module_name": "cifar10"
       }
     },
-    "preprocess": {}
+    "preprocess": {
+      "labels_col": "label",
+      "options": {
+        "clip": {
+          "min": -0.5,
+          "max": 0.5
+        },
+        "resize": {
+          "width": 32,
+          "height": 32
+        }
+      }
+    }
   }
 }

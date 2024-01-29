@@ -41,7 +41,7 @@ class Keras(Source):
         df['label'] = labels
 
         # randomly select 80% of the data for training
-        df = df.sample(frac=0.05, random_state=200)
+        df = df.sample(frac=0.01, random_state=200)
 
         # save the data
         df.to_csv(str(path / f'{name}.csv'), index=False)

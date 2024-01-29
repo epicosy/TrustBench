@@ -201,7 +201,7 @@ class Dataset:
         resize_config = self.config.get('options', {}).get('resize', {})
 
         if resize_config:
-            return tuple(resize_config['width'], resize_config['height'])
+            return resize_config['width'], resize_config['height']
 
         else:
             return ()

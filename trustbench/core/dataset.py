@@ -56,8 +56,8 @@ class Split:
 
     def resize(self, shape: tuple) -> np.ndarray:
         size = len(self.features)
-
-        return self.features.to_numpy().reshape((size, *shape))
+        # resize it is for images so it should be 3 for the channels
+        return self.features.to_numpy().reshape((size, *shape, 3))
 
 
 @dataclass

@@ -27,7 +27,15 @@ class Keras(Source):
         path.mkdir(parents=True, exist_ok=True)
         module = importlib.import_module(module_path)
         (x_train, y_train), (x_test, y_test) = module.load_data()
+
+        np.savez_compressed(path / 'cifar10.npz', x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test)
+        #np.save(str(train_dir / 'x.npy'), x_train)
+        #np.save(str(train_dir / 'y.npy'), y_train)
+        #np.save(str(test_dir / 'x.npy'), x_test)
+        #np.save(str(test_dir / 'y.npy'), y_test)
+
         # concatenate the x_train and x_test
+        '''
         features = np.concatenate((x_train, x_test))
         labels = np.concatenate((y_train, y_test))
 
@@ -45,3 +53,4 @@ class Keras(Source):
 
         # save the data
         df.to_csv(str(path / f'{name}.csv'), index=False)
+        '''

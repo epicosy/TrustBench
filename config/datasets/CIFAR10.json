@@ -1,5 +1,6 @@
 {
   "CIFAR10": {
+    "format": "npy",
     "collect": {
       "source": "keras",
       "kwargs": {
@@ -7,11 +8,13 @@
       }
     },
     "preprocess": {
-      "labels_col": "label",
       "options": {
         "clip": {
           "min": -0.5,
           "max": 0.5
+        },
+        "split": {
+          "train": 40000
         },
         "resize": {
           "width": 32,

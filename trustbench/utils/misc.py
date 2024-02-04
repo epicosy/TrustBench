@@ -100,3 +100,13 @@ def get_datasets_configs() -> dict:
             configs.update(read_config(dc))
 
     return configs
+
+
+def load_dataset(name: str, path: Path, config: dict):
+    from trustbench.core.dataset import CSVDataset, NPYDataset
+    preprocess_config = config.get('preprocess', {})
+
+    if 'format' in config and config['format'] == 'npy':
+        return NPYDataset(name=name, path=path, config=preprocess_config)
+    else:
+        return CSVDataset(name=name, path=path, config=preprocess_config)

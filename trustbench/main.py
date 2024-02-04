@@ -1,7 +1,6 @@
 import argparse
 
-from trustbench.utils.misc import find_sources, get_datasets_configs, list_datasets
-from trustbench.core.dataset import Dataset
+from trustbench.utils.misc import find_sources, get_datasets_configs, list_datasets, load_dataset
 
 
 SOURCES = find_sources()
@@ -36,10 +35,8 @@ def main():
         datasets = list_datasets()
 
         for name, configs in datasets_configs.items():
-            preprocess_config = configs.get('preprocess', {})
-
             if name not in datasets:
                 continue
 
-            dataset = Dataset(name, path=datasets[name], config=preprocess_config)
+            dataset = load_dataset(name=name, path=datasets[name], config=configs)
             dataset.preprocess()

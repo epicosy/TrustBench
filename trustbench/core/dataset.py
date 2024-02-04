@@ -1,3 +1,5 @@
+from abc import abstractmethod
+
 import pandas as pd
 import numpy as np
 
@@ -15,6 +17,7 @@ class Split:
     _features: pd.DataFrame = None
     _labels: np.ndarray = None
     _path: Path = None
+    _format: str = 'csv'
 
     @property
     def path(self):
@@ -27,8 +30,11 @@ class Split:
     @property
     def features(self):
         if self._features is None:
-            self._features = pd.read_csv(str(self.path / self._features_file), delimiter=',', encoding='utf-8',
-                                         header=None if not self.headers else 'infer')
+            if self._format == 'npy':
+                self._features = np.load(str(self.path / self._features_file))
+            else:
+                self._features = pd.read_csv(str(self.path / self._features_file), delimiter=',', encoding='utf-8',
+                                             header=None if not self.headers else 'infer')
 
         return self._features
 
@@ -39,9 +45,10 @@ class Split:
     @property
     def labels(self):
         if self._labels is None:
-            self._labels = np.loadtxt(str(self.path / self._labels_file), dtype=int)
-            #self._labels = pd.read_csv(str(self.path / self._labels_file), delimiter=',', encoding='utf-8', header=None,
-            #                           names=['label'])
+            if self._format == 'npy':
+                self._labels = np.load(str(self.path / self._labels_file))
+            else:
+                self._labels = np.loadtxt(str(self.path / self._labels_file), dtype=int)
 
         return self._labels
 
@@ -51,8 +58,12 @@ class Split:
 
     def save(self):
         self.path.mkdir(parents=True, exist_ok=True)
-        self._features.to_csv(str(self.path / self._features_file), index=False, header=self.headers)
-        np.savetxt(str(self.path / self._labels_file), self._labels, fmt='%d')
+        if self._format == 'csv':
+            self._features.to_csv(str(self.path / self._features_file), index=False, header=self.headers)
+            np.savetxt(str(self.path / self._labels_file), self._labels, fmt='%d')
+        else:
+            np.save(str(self.path / self._features_file), self._features)
+            np.save(str(self.path / self._labels_file), self._labels)
 
     def resize(self, shape: tuple) -> np.ndarray:
         size = len(self.features)
@@ -85,38 +96,64 @@ class Test(Split):
 
 
 class Dataset:
-    def __init__(self, name: str, path: Path, config: dict):
+    def __init__(self, name: str, path: Path, config: dict, data_format: str = 'csv'):
         """
-
         :param name: Dataset name
         :param path: Path to the raw dataset
+        :param config: Dataset configuration
+        :param format: File format of the dataset
         """
         self.name = name
+        self.format = data_format
         self.root_path = path
         self.config = config
-        self.path = [file for file in path.iterdir() if file.is_file() and file.suffix == '.csv'][0]
-        self._df = None
-        self.splits = {'train': Train(), 'val': Val(), 'test': Test()}
+        self._data = None
+
+        if self.format == 'csv':
+            self.splits = {'train': Train(), 'val': Val(), 'test': Test()}
+        else:
+            self.splits = {'train': Train(_features_file='x.npy', _labels_file='y.npy', _format='npy'),
+                           'val': Val(_features_file='x.npy', _labels_file='y.npy', _format='npy'),
+                           'test': Test(_features_file='x.npy', _labels_file='y.npy', _format='npy')}
 
         for k, v in self.splits.items():
             v.path = self.root_path
 
     @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    @abstractmethod
+    def data(self, data):
+        pass
+
+    @property
     def options(self):
         return self.config.get('options', {})
 
+    @abstractmethod
+    def preprocess(self):
+        pass
+
+
+class CSVDataset(Dataset):
+    def __init__(self, **kwargs):
+        super().__init__(data_format='csv', **kwargs)
+        self.path = [file for file in self.root_path.iterdir() if file.is_file() and file.suffix == '.csv'][0]
+
     @property
-    def df(self):
-        if self._df is None:
-            self._df = pd.read_csv(str(self.path), delimiter=',', encoding='utf-8', index_col=False)
+    def data(self):
+        if self._data is None:
+            self._data = pd.read_csv(str(self.path), delimiter=',', encoding='utf-8', index_col=False)
             # drop any unnamed index column
-            self._df = self._df.loc[:, ~self._df.columns.str.contains('^Unnamed')]
+            self._data = self._data.loc[:, ~self._data.columns.str.contains('^Unnamed')]
 
-        return self._df
+        return self._data
 
-    @df.setter
-    def df(self, df):
-        self._df = df
+    @data.setter
+    def data(self, data):
+        self._data = data
 
     def _transform(self):
         from pandas.api.types import is_string_dtype
@@ -130,23 +167,23 @@ class Dataset:
         scale = self.options.get('scale', False)
 
         # TODO: this it is slow for large datasets; consider using a more efficient method
-        for col in tqdm(self.df.columns):
+        for col in tqdm(self.data.columns):
             if col in encodings:
                 print(f"Encoding column {col}")
-                self.df[col] = self.df[col].map(encodings[col])
-            if is_string_dtype(self.df[col]):
+                self.data[col] = self.data[col].map(encodings[col])
+            if is_string_dtype(self.data[col]):
                 print(f"Binarizing column {col}")
                 if binarize:
                     # the other categorical columns should be one-hot encoded
-                    self.df = pd.concat([self.df, pd.get_dummies(self.df[col], prefix=col)], axis=1)
-                    self.df.drop(col, axis=1, inplace=True)
+                    self.data = pd.concat([self.data, pd.get_dummies(self.data[col], prefix=col)], axis=1)
+                    self.data.drop(col, axis=1, inplace=True)
             else:
                 if scale:
                     print(f"Scaling column {col}")
                     from sklearn.preprocessing import MinMaxScaler
 
                     min_max_scaler = MinMaxScaler()
-                    self.df[col] = min_max_scaler.fit_transform(self.df[col].values.reshape(-1, 1))
+                    self.data[col] = min_max_scaler.fit_transform(self.data[col].values.reshape(-1, 1))
 
     def _clip(self, features: pd.DataFrame, max_clip: float) -> pd.DataFrame:
         # TODO: why only use clip_max?
@@ -171,8 +208,8 @@ class Dataset:
         self._transform()
         labels_col = self.config.get('labels_col', None)
 
-        labels = self.df[labels_col]
-        features = self.df.drop(labels_col, axis=1)
+        labels = self.data[labels_col]
+        features = self.data.drop(labels_col, axis=1)
 
         clip = self.options.get('clip', {})
 
@@ -205,3 +242,75 @@ class Dataset:
 
         else:
             return ()
+
+
+class NPYDataset(Dataset):
+    def __init__(self, **kwargs):
+        super().__init__(data_format='npy', **kwargs)
+        self.path = [file for file in self.root_path.iterdir() if file.is_file() and file.suffix == '.npz'][0]
+
+    @property
+    def data(self):
+        if self._data is None:
+            self._data = np.load(str(self.path))
+
+        return self._data
+
+    @data.setter
+    def data(self, data):
+        self._data = data
+
+    def _clip(self, x: np.ndarray) -> np.ndarray:
+        clip = self.options.get('clip', {})
+
+        if clip:
+            clip_max = clip.get('max', None)
+            if clip_max:
+                # check the range for the clip
+                if clip_max < 0 or clip_max > 1:
+                    raise ValueError("Clip range must be between 0 and 1.")
+
+                return (x.astype("float32") / 255.0) - (1.0 - clip_max)
+            else:
+                raise ValueError("Both min and max must be provided for clipping.")
+
+        return x
+
+    def _split(self, x: np.ndarray, y: np.ndarray) -> tuple:
+        split = self.options.get('split', {})
+
+        if split:
+            num_train = split.get('train', None)
+            if num_train:
+                # split original training dataset into training and validation dataset
+                x_train = x[:num_train]
+                x_valid = x[num_train:]
+                y_train = y[:num_train]
+                y_valid = y[num_train:]
+                return x_train, x_valid, y_train, y_valid
+            else:
+                raise ValueError("Number of training samples must be provided for splitting.")
+
+        return x, y, None, None
+
+    def preprocess(self):
+        x_train_total = self._clip(self.data['x_train'])
+        y_train_total = self.data['y_train'].reshape([self.data['y_train'].shape[0]])
+
+        (self.splits['train'].features, self.splits['val'].features,
+         self.splits['train'].labels, self.splits['val'].labels) = self._split(x_train_total, y_train_total)
+
+        self.splits['test'].features = self._clip(self.data['x_test'])
+        self.splits['test'].labels = self.data['y_test'].reshape([self.data['y_test'].shape[0]])
+
+        # split original training dataset into training and validation dataset
+        print("x_train len:{}".format(len(self.splits['train'].features)))
+        print("x_valid len:{}".format(len(self.splits['val'].features)))
+        print("x_test len:{}".format(len(self.splits['test'].features)))
+        print("y_train len:{}".format(len(self.splits['train'].labels)))
+        print("y_valid len:{}".format(len(self.splits['val'].labels)))
+        print("y_test len:{}".format(len(self.splits['test'].labels)))
+
+        self.splits['test'].save()
+        self.splits['train'].save()
+        self.splits['val'].save()

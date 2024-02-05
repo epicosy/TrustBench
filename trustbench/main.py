@@ -40,3 +40,7 @@ def main():
 
             dataset = load_dataset(name=name, path=datasets[name], config=configs)
             dataset.preprocess()
+
+
+if __name__ == '__main__':
+    main()

@@ -65,11 +65,6 @@ class Split:
             np.save(str(self.path / self._features_file), self._features)
             np.save(str(self.path / self._labels_file), self._labels)
 
-    def resize(self, shape: tuple) -> np.ndarray:
-        size = len(self.features)
-        # resize it is for images so it should be 3 for the channels
-        return self.features.to_numpy().reshape((size, *shape, 3))
-
 
 @dataclass
 class Train(Split):
@@ -233,15 +228,6 @@ class CSVDataset(Dataset):
         val_set.features, test_set.features, val_set.labels, test_set.labels = val_test_split
         val_set.save()
         test_set.save()
-
-    def get_resize_shape(self) -> tuple:
-        resize_config = self.config.get('options', {}).get('resize', {})
-
-        if resize_config:
-            return resize_config['width'], resize_config['height']
-
-        else:
-            return ()
 
 
 class NPYDataset(Dataset):

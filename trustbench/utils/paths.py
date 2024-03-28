@@ -10,3 +10,12 @@ datasets_config_dir.mkdir(parents=True, exist_ok=True)
 
 data_dir = root_dir / 'data'
 data_dir.mkdir(parents=True, exist_ok=True)
+
+models_dir = root_dir / 'models'
+models_dir.mkdir(parents=True, exist_ok=True)
+
+models_config_dir = config_dir / 'models'
+models_config_dir.mkdir(parents=True, exist_ok=True)
+
+predictions_dir = root_dir / 'predictions'
+predictions_dir.mkdir(parents=True, exist_ok=True)

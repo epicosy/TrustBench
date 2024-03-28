@@ -5,6 +5,7 @@ import numpy as np
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Union
 from tqdm import tqdm
 
 
@@ -15,7 +16,7 @@ class Split:
     _labels_file: str
     headers: bool = True
     _features: pd.DataFrame = None
-    _labels: np.ndarray = None
+    _labels: Union[np.ndarray, pd.DataFrame] = None
     _path: Path = None
     _format: str = 'csv'
 
@@ -48,7 +49,8 @@ class Split:
             if self._format == 'npy':
                 self._labels = np.load(str(self.path / self._labels_file))
             else:
-                self._labels = np.loadtxt(str(self.path / self._labels_file), dtype=int)
+                self._labels = pd.read_csv(str(self.path / self._labels_file), dtype=int, delimiter=',',
+                                           encoding='utf-8', header=None if not self.headers else 'infer')
 
         return self._labels
 
@@ -60,7 +62,7 @@ class Split:
         self.path.mkdir(parents=True, exist_ok=True)
         if self._format == 'csv':
             self._features.to_csv(str(self.path / self._features_file), index=False, header=self.headers)
-            np.savetxt(str(self.path / self._labels_file), self._labels, fmt='%d')
+            self._labels.to_csv(str(self.path / self._labels_file), index=False, header=self.headers)
         else:
             np.save(str(self.path / self._features_file), self._features)
             np.save(str(self.path / self._labels_file), self._labels)
@@ -71,7 +73,7 @@ class Train(Split):
     name: str = 'train'
     _features_file: str = 'x.csv'
     _labels_file: str = 'y.csv'
-    headers: bool = False
+    headers: bool = True
 
 
 @dataclass
@@ -153,6 +155,7 @@ class CSVDataset(Dataset):
     def _transform(self):
         from pandas.api.types import is_string_dtype
         encodings = self.options.get('encode', {})
+        labels_col = self.config.get('labels_col', None)
 
         if not isinstance(encodings, dict):
             raise ValueError("Encodings must be a dictionary of column names to encodings. e.g. "
@@ -174,7 +177,12 @@ class CSVDataset(Dataset):
                     self.data.drop(col, axis=1, inplace=True)
             else:
                 if scale:
+                    # skip labels column
+                    if col == labels_col:
+                        continue
+
                     print(f"Scaling column {col}")
+
                     from sklearn.preprocessing import MinMaxScaler
 
                     min_max_scaler = MinMaxScaler()
@@ -204,6 +212,7 @@ class CSVDataset(Dataset):
         labels_col = self.config.get('labels_col', None)
 
         labels = self.data[labels_col]
+        labels = labels.rename('y')
         features = self.data.drop(labels_col, axis=1)
 
         clip = self.options.get('clip', {})
@@ -256,7 +265,7 @@ class NPYDataset(Dataset):
                 if clip_max < 0 or clip_max > 1:
                     raise ValueError("Clip range must be between 0 and 1.")
 
-                return (x.astype("float32") / 255.0) - (1.0 - clip_max)
+                return (x.astype("float16") / 255.0) - (1.0 - clip_max)
             else:
                 raise ValueError("Both min and max must be provided for clipping.")
 

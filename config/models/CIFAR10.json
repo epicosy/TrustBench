@@ -1,0 +1,14 @@
+{
+  "CIFAR10": {
+    "collect": {
+      "source": "keras",
+      "kwargs": {
+        "owner": "",
+        "model_name": ""
+      }
+    },
+    "dataset": {
+      "name": "CIFAR10"
+    }
+  }
+}

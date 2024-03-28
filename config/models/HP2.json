@@ -1,0 +1,14 @@
+{
+  "HP2": {
+    "collect": {
+      "source": "kaggle",
+      "kwargs": {
+        "owner": "",
+        "model_name": ""
+      }
+    },
+    "dataset": {
+      "name": "HP"
+    }
+  }
+}

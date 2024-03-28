@@ -28,7 +28,8 @@ class Keras(Source):
         module = importlib.import_module(module_path)
         (x_train, y_train), (x_test, y_test) = module.load_data()
 
-        np.savez_compressed(path / 'cifar10.npz', x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test)
+        np.savez_compressed(path / f"{kwargs['module_name']}.npz", x_train=x_train, y_train=y_train, x_test=x_test,
+                            y_test=y_test)
         #np.save(str(train_dir / 'x.npy'), x_train)
         #np.save(str(train_dir / 'y.npy'), y_train)
         #np.save(str(test_dir / 'x.npy'), x_test)

@@ -1,0 +1,26 @@
+{
+  "CIFAR100": {
+    "format": "npy",
+    "collect": {
+      "source": "keras",
+      "kwargs": {
+        "module_name": "cifar100"
+      }
+    },
+    "preprocess": {
+      "options": {
+        "clip": {
+          "min": -0.5,
+          "max": 0.5
+        },
+        "split": {
+          "train": 40000
+        },
+        "resize": {
+          "width": 32,
+          "height": 32
+        }
+      }
+    }
+  }
+}

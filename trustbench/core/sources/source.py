@@ -1,7 +1,7 @@
 from abc import abstractmethod
 
 from trustbench.utils.misc import get_config
-from trustbench.utils.paths import data_dir
+from trustbench.utils.paths import data_dir, models_dir
 
 
 class Source:
@@ -11,6 +11,7 @@ class Source:
         self.config = get_config(config)
         self._api = None
         self.data_dir = data_dir
+        self.models_dir = models_dir
         self.init(**kwargs)
 
     @property

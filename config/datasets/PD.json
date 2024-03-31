@@ -9,6 +9,7 @@
     },
     "preprocess": {
       "labels_col": "Outcome"
-    }
+    },
+    "format": "csv"
   }
 }

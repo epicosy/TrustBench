@@ -9,6 +9,9 @@ TrustBench is implemented in Python 3.10. To install the required packages, run:
 $ python3.10 -m venv env
 $ source env/bin/activate
 $ pip install -r requirements.txt
+$ export TRUSTBENCH_PATH=~/.trustbench
+$ mkdir $TRUSTBENCH_PATH
+$ cp -r config $TRUSTBENCH_PATH
 ```
 
 ## Configuration

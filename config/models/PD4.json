@@ -3,8 +3,12 @@
     "collect": {
       "source": "kaggle",
       "kwargs": {
-        "owner": "",
-        "model_name": ""
+        "owner": "eduardpinconschi",
+        "model_name": "PD",
+        "framework": "Keras",
+        "instance": "pd4",
+        "version": 1,
+        "file": "PD4.h5"
       }
     },
     "dataset": {

@@ -3,8 +3,12 @@
     "collect": {
       "source": "kaggle",
       "kwargs": {
-        "owner": "",
-        "model_name": ""
+        "owner": "eduardpinconschi",
+        "model_name": "HP",
+        "framework": "Keras",
+        "instance": "hp2",
+        "version": 1,
+        "file": "HP2.h5"
       }
     },
     "dataset": {

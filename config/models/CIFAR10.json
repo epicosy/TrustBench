@@ -1,10 +1,14 @@
 {
   "CIFAR10": {
     "collect": {
-      "source": "keras",
+      "source": "kaggle",
       "kwargs": {
-        "owner": "",
-        "model_name": ""
+        "owner": "eduardpinconschi",
+        "model_name": "CIFAR10",
+        "framework": "Keras",
+        "instance": "cifar10",
+        "version": 1,
+        "file": "CIFAR10.h5"
       }
     },
     "dataset": {

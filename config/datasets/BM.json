@@ -1,5 +1,6 @@
 {
   "BM": {
+    "format": "csv",
     "collect": {
       "source": "kaggle",
       "kwargs": {

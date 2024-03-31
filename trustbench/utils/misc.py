@@ -6,6 +6,7 @@ from typing import Union
 from tensorflow import keras
 
 from trustbench.utils.paths import config_dir, data_dir, datasets_config_dir, models_dir, models_config_dir
+from trustbench.core.dataset import CSVDataset, NPYDataset, Dataset
 
 
 def get_configs():
@@ -111,6 +112,15 @@ def get_datasets_configs() -> dict:
     return configs
 
 
+def get_dataset(name: str) -> Dataset:
+    data_path = data_dir / name
+
+    if not data_path.exists():
+        raise ValueError(f"Data for {name} not found")
+
+    return load_dataset(name, data_path)
+
+
 def get_model_config(model: str) -> dict:
     model_config = models_config_dir / f"{model}.json"
 
@@ -130,14 +140,34 @@ def get_models_configs() -> dict:
     return configs
 
 
-def load_dataset(name: str, path: Path, config: dict):
-    from trustbench.core.dataset import CSVDataset, NPYDataset
+def load_dataset(name: str, path: Path):
+    dataset_config_path = datasets_config_dir / f"{name}.json"
+
+    if not dataset_config_path.exists():
+        raise ValueError(f"Config for {name} dataset not found")
+
+    with dataset_config_path.open(mode='r') as f:
+        config = json.load(f)
+
+    if name not in config:
+        raise ValueError(f"{name} not found in config")
+
+    config = config[name]
+
+    if 'preprocess' not in config:
+        print(f"Preprocess config not found for {name}")
+
     preprocess_config = config.get('preprocess', {})
 
-    if 'format' in config and config['format'] == 'npy':
+    if 'format' not in config:
+        raise ValueError(f"Format not found for {name}")
+
+    if config['format'] == 'npy':
         return NPYDataset(name=name, path=path, config=preprocess_config)
-    else:
+    elif config['format'] == 'csv':
         return CSVDataset(name=name, path=path, config=preprocess_config)
+    else:
+        raise ValueError(f"Format {config['format']} not implemented")
 
 
 def load_model(model: str) -> keras.Model:

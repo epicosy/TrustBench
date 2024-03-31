@@ -13,6 +13,7 @@
         "scale": "true",
         "binarize": "true"
       }
-    }
+    },
+    "format": "csv"
   }
 }

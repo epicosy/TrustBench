@@ -12,6 +12,7 @@
       "options": {
         "scale": true
       }
-    }
+    },
+    "format": "csv"
   }
 }

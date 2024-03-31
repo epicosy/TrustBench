@@ -130,7 +130,7 @@ class Dataset:
         return self.config.get('options', {})
 
     @abstractmethod
-    def preprocess(self):
+    def preprocess(self, **kwargs):
         pass
 
 
@@ -205,7 +205,7 @@ class CSVDataset(Dataset):
 
             return features
 
-    def preprocess(self):
+    def preprocess(self, random_state: int = 42):
         from sklearn.model_selection import train_test_split
 
         self._transform()
@@ -224,13 +224,13 @@ class CSVDataset(Dataset):
             else:
                 raise ValueError("Both min and max must be provided for clipping.")
 
-        train_split = train_test_split(features, labels, test_size=0.2)
+        train_split = train_test_split(features, labels, test_size=0.2, random_state=random_state)
 
         train_set = self.splits['train']
         train_set.features, features_chunk, train_set.labels, labels_chunk = train_split
         train_set.save()
 
-        val_test_split = train_test_split(features_chunk, labels_chunk, test_size=0.5)
+        val_test_split = train_test_split(features_chunk, labels_chunk, test_size=0.5, random_state=random_state)
         val_set = self.splits['val']
         test_set = self.splits['test']
 
@@ -288,7 +288,7 @@ class NPYDataset(Dataset):
 
         return x, y, None, None
 
-    def preprocess(self):
+    def preprocess(self, random_state: int = 42):
         x_train_total = self._clip(self.data['x_train'])
         y_train_total = self.data['y_train'].reshape([self.data['y_train'].shape[0]])
 

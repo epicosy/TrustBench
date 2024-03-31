@@ -39,8 +39,8 @@ class Kaggle(Source):
 
         raise ValueError(f"Model {name} not found for owner {owner}")
 
-    def _download_dataset(self, owner: str, name: str):
-        dataset = f"{owner}/{name}"
+    def _download_dataset(self, name: str, owner: str, dataset_name: str):
+        dataset = f"{owner}/{dataset_name}"
         path = self.data_dir / name
         path.mkdir(parents=True, exist_ok=True)
 
@@ -70,7 +70,7 @@ class Kaggle(Source):
 
     def download(self, name: str, **kwargs):
         if 'dataset_name' in kwargs:
-            self._download_dataset(kwargs['owner'], kwargs['dataset_name'])
+            self._download_dataset(name, kwargs['owner'], kwargs['dataset_name'])
 
         if 'model_name' in kwargs:
             self._download_model(kwargs['owner'], kwargs['model_name'], kwargs['framework'], kwargs['instance'],

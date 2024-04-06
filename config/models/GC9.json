@@ -1,0 +1,18 @@
+{
+  "GC9": {
+    "collect": {
+      "source": "kaggle",
+      "kwargs": {
+        "owner": "eduardpinconschi",
+        "model_name": "GC",
+        "framework": "Keras",
+        "instance": "gc9",
+        "version": 1,
+        "file": "GC9.h5"
+      }
+    },
+    "dataset": {
+      "name": "GC"
+    }
+  }
+}

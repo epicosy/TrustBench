@@ -12,6 +12,7 @@
       "labels_col": "y",
       "options": {
         "binarize": true,
+        "balance": true,
         "encode": {
           "month": {
             "jan": 1,
@@ -39,7 +40,15 @@
             "other": 2,
             "success": 3
           }
-        }
+        },
+        "drop": [
+            "job_admin",
+            "marital_divorced",
+            "default_no",
+            "housing_no",
+            "loan_no",
+            "contact_cellular"
+        ]
       }
     }
   }

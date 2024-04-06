@@ -61,12 +61,12 @@ def main():
 
         for name, configs in models_configs.items():
             if args.dataset != configs['dataset']['name']:
-                print(f'Model: {name} is not for dataset: {args.dataset}')
+                # print(f'Model: {name} is not for dataset: {args.dataset}')
                 continue
 
             metadata = get_metadata(model_name=name, dataset_name=args.dataset)
 
-            print(metadata)
+            print(name, metadata)
 
 
 if __name__ == '__main__':

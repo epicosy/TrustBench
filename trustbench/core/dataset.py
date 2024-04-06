@@ -156,6 +156,9 @@ class CSVDataset(Dataset):
         from pandas.api.types import is_string_dtype
         encodings = self.options.get('encode', {})
         labels_col = self.config.get('labels_col', None)
+        balance = self.options.get('balance', False)
+        drop_columns = self.options.get('drop', [])
+        factorize_columns = self.options.get('factorize', [])
 
         if not isinstance(encodings, dict):
             raise ValueError("Encodings must be a dictionary of column names to encodings. e.g. "
@@ -164,9 +167,33 @@ class CSVDataset(Dataset):
         binarize = self.options.get('binarize', False)
         scale = self.options.get('scale', False)
 
+        if balance:
+            # TODO: here we do the same balancing as in previous work
+            #  however, this is not the most appropriate way to balance the dataset
+
+            # check number of labels in the dataset
+            if len(self.data[labels_col].unique()) > 2:
+                raise ValueError("Balancing is only supported for binary classification tasks.")
+            # check if labels are 0 and 1
+            if not set(self.data[labels_col].unique()).issubset({0, 1}):
+                raise ValueError("Balancing is only supported for binary classification tasks.")
+
+            df_cf0 = self.data[self.data[labels_col] == 0]
+            df_cf1 = self.data[self.data[labels_col] == 1]
+
+            # TODO: the random state parameter should be dynamic
+            df_cf0 = df_cf0.sample(df_cf1.shape[0], random_state=10)
+            print(f"Shapes after balancing: 0 - {df_cf0.shape} 1 - {df_cf1.shape}")
+
+            self.data = pd.concat([df_cf0, df_cf1])
+            print(f"Final shape after balancing: {self.data.shape}")
+
         # TODO: this it is slow for large datasets; consider using a more efficient method
         for col in tqdm(self.data.columns):
-            if col in encodings:
+            if col in factorize_columns:
+                print(f"Factorizing column {col}")
+                self.data[col] = pd.factorize(self.data[col])[0]
+            elif col in encodings:
                 print(f"Encoding column {col}")
                 self.data[col] = self.data[col].map(encodings[col])
             if is_string_dtype(self.data[col]):
@@ -188,6 +215,10 @@ class CSVDataset(Dataset):
                     min_max_scaler = MinMaxScaler()
                     self.data[col] = min_max_scaler.fit_transform(self.data[col].values.reshape(-1, 1))
 
+        if drop_columns:
+            print(f"Dropping columns: {drop_columns}")
+            self.data.drop(drop_columns, axis=1, inplace=True)
+
     def _clip(self, features: pd.DataFrame, max_clip: float) -> pd.DataFrame:
         # TODO: why only use clip_max?
         #  https://github.com/self-checker/SelfChecker/blob/master/main_kde.py#L111
@@ -200,7 +231,7 @@ class CSVDataset(Dataset):
             # get all the columns that are not categorical
             non_categorical = features.select_dtypes(exclude=['object']).columns
 
-            features[non_categorical] = features[non_categorical].astype("float32")
+            features[non_categorical] = features[non_categorical].astype("float16")
             features[non_categorical] = features[non_categorical].applymap(lambda x: (x / 255.0) - (1.0 - max_clip))
 
             return features

@@ -1,0 +1,18 @@
+{
+  "GC1": {
+    "collect": {
+      "source": "kaggle",
+      "kwargs": {
+        "owner": "eduardpinconschi",
+        "model_name": "GC",
+        "framework": "Keras",
+        "instance": "gc1",
+        "version": 1,
+        "file": "GC1.h5"
+      }
+    },
+    "dataset": {
+      "name": "GC"
+    }
+  }
+}

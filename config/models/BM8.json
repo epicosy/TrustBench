@@ -1,0 +1,18 @@
+{
+  "BM8": {
+    "collect": {
+      "source": "kaggle",
+      "kwargs": {
+        "owner": "eduardpinconschi",
+        "model_name": "BM",
+        "framework": "Keras",
+        "instance": "bm8",
+        "version": 1,
+        "file": "BM8.h5"
+      }
+    },
+    "dataset": {
+      "name": "BM"
+    }
+  }
+}

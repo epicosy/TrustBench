@@ -1,0 +1,18 @@
+{
+  "BM11": {
+    "collect": {
+      "source": "kaggle",
+      "kwargs": {
+        "owner": "eduardpinconschi",
+        "model_name": "BM",
+        "framework": "Keras",
+        "instance": "bm11",
+        "version": 1,
+        "file": "BM11.h5"
+      }
+    },
+    "dataset": {
+      "name": "BM"
+    }
+  }
+}

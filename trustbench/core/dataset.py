@@ -246,6 +246,9 @@ class CSVDataset(Dataset):
         labels = labels.rename('y')
         features = self.data.drop(labels_col, axis=1)
 
+        if 'random_state' in self.options:
+            random_state = self.options.get('random_state', random_state)
+
         clip = self.options.get('clip', {})
 
         if clip:
@@ -255,7 +258,11 @@ class CSVDataset(Dataset):
             else:
                 raise ValueError("Both min and max must be provided for clipping.")
 
-        train_split = train_test_split(features, labels, test_size=0.2, random_state=random_state)
+        if 'train_split' in self.options:
+            split_idx = self.options['train_split']
+            train_split = features[:split_idx], features[split_idx:], labels[:split_idx], labels[split_idx:]
+        else:
+            train_split = train_test_split(features, labels, test_size=0.2, random_state=random_state)
 
         train_set = self.splits['train']
         train_set.features, features_chunk, train_set.labels, labels_chunk = train_split
@@ -296,7 +303,7 @@ class NPYDataset(Dataset):
                 if clip_max < 0 or clip_max > 1:
                     raise ValueError("Clip range must be between 0 and 1.")
 
-                return (x.astype("float16") / 255.0) - (1.0 - clip_max)
+                return (x.astype("float32") / 255.0) - (1.0 - clip_max)
             else:
                 raise ValueError("Both min and max must be provided for clipping.")
 

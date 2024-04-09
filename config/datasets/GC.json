@@ -10,6 +10,7 @@
     "preprocess": {
       "labels_col": "Risk",
       "options": {
+        "train_split": 800,
         "scale": "true",
         "binarize": "true",
         "factorize": ["Risk"],

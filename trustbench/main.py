@@ -18,11 +18,11 @@ def main():
     collect_parser.add_argument('-d', '--datasets', action='store_true', help='gets datasets', required=False)
     collect_parser.add_argument('-m', '--models', action='store_true', help='gets models', required=False)
 
-    preprocess_parser = subparsers.add_parser('preprocess')
-    preprocess_parser.add_argument('-d', '--dataset', type=str, help='dataset', required=False,
-                                   choices=DATASETS_CONFIGS.keys())
-    preprocess_parser.add_argument('-rs', '--random_state', type=int, required=False, default=42,
-                                   help='Random state for reproducibility')
+    prepare_parser = subparsers.add_parser('prepare')
+    prepare_parser.add_argument('-d', '--dataset', type=str, help='dataset', required=False,
+                                choices=DATASETS_CONFIGS.keys())
+    prepare_parser.add_argument('-rs', '--random_state', type=int, required=False, default=42,
+                                help='Random state for reproducibility')
     # TODO: add argument for preprocessing all datasets for a given source
 
     detail_parser = subparsers.add_parser('detail')
@@ -49,7 +49,7 @@ def main():
             if 'source' in collect_config and collect_config['source'] == args.source:
                 source.download(name=name, **collect_config['kwargs'])
 
-    elif args.subparser == 'preprocess':
+    elif args.subparser == 'prepare':
         datasets_configs = {args.dataset: DATASETS_CONFIGS[args.dataset]} if args.dataset else DATASETS_CONFIGS
 
         for name, configs in datasets_configs.items():

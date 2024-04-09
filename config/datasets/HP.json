@@ -10,6 +10,7 @@
     "preprocess": {
       "labels_col":"AboveMedianPrice",
       "options": {
+        "random_state": 10,
         "scale": true
       }
     },

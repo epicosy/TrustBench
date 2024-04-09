@@ -8,7 +8,10 @@
       }
     },
     "preprocess": {
-      "labels_col": "Outcome"
+      "labels_col": "Outcome",
+      "options": {
+        "random_state": 10
+      }
     },
     "format": "csv"
   }

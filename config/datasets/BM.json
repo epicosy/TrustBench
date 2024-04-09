@@ -11,6 +11,7 @@
     "preprocess": {
       "labels_col": "y",
       "options": {
+        "random_state": 10,
         "binarize": true,
         "balance": true,
         "encode": {

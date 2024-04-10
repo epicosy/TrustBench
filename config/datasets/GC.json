@@ -11,8 +11,8 @@
       "labels_col": "Risk",
       "options": {
         "train_split": 800,
-        "scale": "true",
-        "binarize": "true",
+        "scale": true,
+        "binarize": true,
         "factorize": ["Risk"],
         "drop": ["Saving accounts_rich", "Purpose_vacation/others"]
       }
